@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Heart</title>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+      #playButton {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 9999;
+        padding: 10px 20px;
+        background-color: #ff6b6b;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        display: none;
+      }
+      
+      #playButton:hover {
+        background-color: #ff5252;
+      }
+      
+      .visible {
+        display: block !important;
+      }
+    </style>
+  </head>
+  <body>
+    <button id="playButton">点这里</button>
+    <canvas id="c" width="980" height="2039"></canvas>
+    <audio id="bgm" preload="auto" muted>
+      <source src="./ssr.mp3" type="audio/mpeg">
+      您的浏览器不支持音频元素。
+    </audio>
+    <script>
+      var c = document.getElementsByTagName("canvas")[0];
+      var a = c.getContext("2d");
+      var audio = document.getElementById("bgm");
+      var playButton = document.getElementById("playButton");
+      
+      // 尝试自动播放
+      function tryAutoplay() {
+        var playPromise = audio.play();
+        
+        if (playPromise !== undefined) {
+          playPromise.then(_ => {
+            // 自动播放成功
+            console.log("自动播放成功");
+            // 静音状态下自动播放成功，取消静音
+            audio.muted = false;
+            playButton.classList.remove("visible");
+          })
+          .catch(error => {
+            console.log("自动播放失败:", error);
+            // 显示播放按钮
+            playButton.classList.add("visible");
+          });
+        }
+      }
+      
+      // 用户点击播放按钮
+      playButton.addEventListener('click', function() {
+        audio.muted = false;
+        var playPromise = audio.play();
+        
+        if (playPromise !== undefined) {
+          playPromise.then(_ => {
+            // 播放成功
+            playButton.textContent = '音乐播放中...';
+            playButton.style.backgroundColor = '#4CAF50';
+            setTimeout(() => {
+              playButton.classList.remove("visible");
+            }, 1000);
+          })
+          .catch(error => {
+            console.log('播放失败:', error);
+            playButton.textContent = '播放失败，点击重试';
+          });
+        }
+      });
+      
+      // 页面加载完成后尝试自动播放
+      window.addEventListener('load', function() {
+        tryAutoplay();
+      });
+    </script>
+
+    <script>
+      e = [];
+      h = [];
+      O = c.width = innerWidth;
+      Q = c.height = innerHeight;
+      v = 32;
+      M = Math;
+      R = M.random;
+      C = M.cos;
+      Y = 6.3;
+      for (i = 0; i < Y; i += 0.2)
+        h.push([
+          O / 2 + 180 * M.pow(M.sin(i), 3),
+          Q / 2 + 10 * -(15 * C(i) - 5 * C(2 * i) - 2 * C(3 * i) - C(4 * i)),
+        ]);
+      for (i = 0; i < v; ) {
+        x = R() * O;
+        y = R() * Q;
+        H = 80 * (i / v) + 280;
+        S = 40 * R() + 60;
+        B = 60 * R() + 20;
+        f = [];
+        for (k = 0; k < v; )
+          f[k++] = {
+            x: x,
+            y: y,
+            X: 0,
+            Y: 0,
+            R: 1 - k / v + 1,
+            S: R() + 1,
+            q: ~~(R() * v),
+            D: 2 * (i % 2) - 1,
+            F: 0.2 * R() + 0.7,
+            f: "hsla(" + ~~H + "," + ~~S + "%," + ~~B + "%,.1)",
+          };
+        e[i++] = f;
+      }
+      function _(d) {
+        a.fillStyle = d.f;
+        a.beginPath();
+        a.arc(d.x, d.y, d.R, 0, Y, 1);
+        a.closePath();
+        a.fill();
+      }
+      setInterval(function () {
+        a.fillStyle = "rgba(0,0,0,.2)";
+        a.fillRect(0, 0, O, Q);
+        for (i = v; i--; ) {
+          f = e[i];
+          u = f[0];
+          q = h[u.q];
+          D = u.x - q[0];
+          E = u.y - q[1];
+          G = M.sqrt(D * D + E * E);
+          10 > G &&
+            (0.95 < R()
+              ? (u.q = ~~(R() * v))
+              : (0.99 < R() && (u.D *= -1),
+                (u.q += u.D),
+                (u.q %= v),
+                0 > u.q && (u.q += v)));
+          u.X += (-D / G) * u.S;
+          u.Y += (-E / G) * u.S;
+          u.x += u.X;
+          u.y += u.Y;
+          _(u);
+          u.X *= u.F;
+          u.Y *= u.F;
+          for (k = 0; k < v - 1; )
+            (T = f[k]),
+              (N = f[++k]),
+              (N.x -= 0.7 * (N.x - T.x)),
+              (N.y -= 0.7 * (N.y - T.y)),
+              _(N);
+        }
+      }, 25);
+    </script>
+  </body>
+</html>
